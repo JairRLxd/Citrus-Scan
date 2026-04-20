@@ -18,7 +18,7 @@ val localProperties = Properties().apply {
     }
 }
 
-val devApiBaseUrl = localProperties.getProperty("dev.apiBaseUrl") ?: "http://10.0.2.2:8000/"
+val devApiBaseUrl = localProperties.getProperty("dev.apiBaseUrl") ?: "http://54.221.126.156/"
 
 android {
     namespace = "com.example.citrusscan"

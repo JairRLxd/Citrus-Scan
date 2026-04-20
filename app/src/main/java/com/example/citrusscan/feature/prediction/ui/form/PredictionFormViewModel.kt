@@ -49,9 +49,10 @@ class PredictionFormViewModel @Inject constructor(
             }
 
             is PredictionUiEvent.WeightChanged -> {
+                val sanitized = sanitizeNumericInput(event.value)
                 _state.update {
                     it.copy(
-                        weight = event.value,
+                        weight = sanitized,
                         weightError = null,
                         submitError = null,
                     )
@@ -59,9 +60,10 @@ class PredictionFormViewModel @Inject constructor(
             }
 
             is PredictionUiEvent.CircumferenceChanged -> {
+                val sanitized = sanitizeNumericInput(event.value)
                 _state.update {
                     it.copy(
-                        circumference = event.value,
+                        circumference = sanitized,
                         circumferenceError = null,
                         submitError = null,
                     )
@@ -140,5 +142,24 @@ class PredictionFormViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun sanitizeNumericInput(value: String): String {
+        val normalized = value.replace(',', '.')
+        var hasDecimalPoint = false
+
+        val filtered = buildString {
+            for (char in normalized) {
+                when {
+                    char.isDigit() -> append(char)
+                    char == '.' && !hasDecimalPoint -> {
+                        append(char)
+                        hasDecimalPoint = true
+                    }
+                }
+            }
+        }
+
+        return if (filtered.startsWith(".")) "0$filtered" else filtered
     }
 }
