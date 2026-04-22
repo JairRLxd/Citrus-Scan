@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,15 +19,20 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.citrusscan.domain.model.ClassifierName
+import com.example.citrusscan.ui.theme.CitrusPeel
+import com.example.citrusscan.ui.theme.CitrusText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +43,7 @@ fun DiagnosticsScreen(
     val state = viewModel.state.collectAsStateWithLifecycle().value
 
     Scaffold(
+        containerColor = Color(0xFF101014),
         topBar = {
             TopAppBar(
                 title = { Text("Diagnosticos") },
@@ -50,28 +57,51 @@ fun DiagnosticsScreen(
                         Icon(Icons.Rounded.Refresh, contentDescription = "Actualizar")
                     }
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF101014),
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White,
+                    actionIconContentColor = Color.White,
+                ),
             )
         },
     ) { padding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
+                .padding(padding)
+                .navigationBarsPadding(),
             contentPadding = PaddingValues(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item {
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = CitrusPeel.copy(alpha = 0.35f),
+                ) {
+                    Text(
+                        text = "Estado de servicios y modelos del backend.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = CitrusText.copy(alpha = 0.88f),
+                        modifier = Modifier.padding(14.dp),
+                    )
+                }
+            }
+
+            item {
                 DiagnosticsCard(
                     title = "Health",
-                    body = when {
-                        state.health != null -> buildString {
-                            appendLine(if (state.health.isUp) "Servidor disponible" else "Servidor reporta fallo")
-                            appendLine("Version: ${state.health.version ?: "-"}")
-                            append("Uptime: ${state.health.uptimeSeconds ?: "-"}")
-                        }
+                    body = buildString {
+                        when {
+                            state.health != null -> {
+                                appendLine(if (state.health.isUp) "Servidor disponible" else "Servidor reporta fallo")
+                                appendLine("Version: ${state.health.version ?: "-"}")
+                                append("Uptime: ${state.health.uptimeSeconds ?: "-"}")
+                            }
 
-                        state.healthError != null -> state.healthError
-                        else -> if (state.isLoading) "Cargando..." else "Sin datos."
+                            state.healthError != null -> append(state.healthError)
+                            else -> append(if (state.isLoading) "Cargando..." else "Sin datos.")
+                        }
                     },
                 )
             }
@@ -79,15 +109,17 @@ fun DiagnosticsScreen(
             item {
                 DiagnosticsCard(
                     title = "Preprocessing",
-                    body = when {
-                        state.preprocessingStatus != null -> buildString {
-                            appendLine("Ready: ${state.preprocessingStatus.ready}")
-                            appendLine("Pipeline: ${state.preprocessingStatus.pipeline.joinToString()}")
-                            append("Detalle: ${state.preprocessingStatus.detail ?: "-"}")
-                        }
+                    body = buildString {
+                        when {
+                            state.preprocessingStatus != null -> {
+                                appendLine("Ready: ${state.preprocessingStatus.ready}")
+                                appendLine("Pipeline: ${state.preprocessingStatus.pipeline.joinToString()}")
+                                append("Detalle: ${state.preprocessingStatus.detail ?: "-"}")
+                            }
 
-                        state.preprocessingError != null -> state.preprocessingError
-                        else -> if (state.isLoading) "Cargando..." else "Sin datos."
+                            state.preprocessingError != null -> append(state.preprocessingError)
+                            else -> append(if (state.isLoading) "Cargando..." else "Sin datos.")
+                        }
                     },
                 )
             }
@@ -130,10 +162,10 @@ private fun DiagnosticsCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(20.dp),
     ) {
         Column(
-            modifier = Modifier.padding(20.dp),
+            modifier = Modifier.padding(18.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(

@@ -5,15 +5,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Analytics
 import androidx.compose.material.icons.rounded.Eco
@@ -71,14 +71,15 @@ fun HomeScreen(
                     .offset(x = 48.dp, y = (-12).dp),
             )
 
+            val scrollState = rememberScrollState()
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 18.dp, vertical = 22.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp),
+                    .verticalScroll(scrollState)
+                    .padding(horizontal = 18.dp, vertical = 14.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
-                Spacer(Modifier.height(8.dp))
-
                 Text(
                     text = buildAnnotatedString {
                         withStyle(
@@ -111,10 +112,10 @@ fun HomeScreen(
                 Text(
                     text = buildAnnotatedString {
                         withStyle(SpanStyle(color = CitrusText, fontWeight = FontWeight.Bold)) {
-                            append("Detecta. Analiza. ")
+                            append("Detecta, Analiza y ")
                         }
                         withStyle(SpanStyle(color = CitrusOrange, fontWeight = FontWeight.Bold)) {
-                            append("Predice.")
+                            append("Predice")
                         }
                     },
                     style = MaterialTheme.typography.headlineSmall,

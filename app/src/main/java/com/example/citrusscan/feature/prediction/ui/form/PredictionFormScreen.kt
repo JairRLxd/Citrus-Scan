@@ -1,5 +1,8 @@
 package com.example.citrusscan.feature.prediction.ui.form
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,11 +25,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
@@ -37,6 +43,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.example.citrusscan.feature.prediction.state.PredictionFormEffect
 import com.example.citrusscan.feature.prediction.state.PredictionUiEvent
+import com.example.citrusscan.ui.theme.CitrusPeel
+import com.example.citrusscan.ui.theme.CitrusText
 import kotlinx.coroutines.flow.collect
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,6 +72,7 @@ fun PredictionFormScreen(
     }
 
     Scaffold(
+        containerColor = Color(0xFF101014),
         topBar = {
             TopAppBar(
                 title = { Text("Datos de analisis") },
@@ -72,6 +81,11 @@ fun PredictionFormScreen(
                         Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Volver")
                     }
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF101014),
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White,
+                ),
             )
         },
     ) { padding ->
@@ -87,9 +101,21 @@ fun PredictionFormScreen(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            Surface(
+                shape = RoundedCornerShape(20.dp),
+                color = CitrusPeel.copy(alpha = 0.35f),
+            ) {
+                Text(
+                    text = "Completa los datos para generar el analisis.",
+                    modifier = Modifier.padding(14.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.White,
+                )
+            }
+
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(28.dp),
+                shape = RoundedCornerShape(24.dp),
             ) {
                 AsyncImage(
                     model = state.selectedImageUri,
@@ -115,6 +141,7 @@ fun PredictionFormScreen(
                 keyboardActions = KeyboardActions(
                     onNext = { focusManager.moveFocus(androidx.compose.ui.focus.FocusDirection.Down) },
                 ),
+                shape = RoundedCornerShape(14.dp),
             )
 
             OutlinedTextField(
@@ -136,20 +163,28 @@ fun PredictionFormScreen(
                         viewModel.onEvent(PredictionUiEvent.Submit)
                     },
                 ),
+                shape = RoundedCornerShape(14.dp),
             )
 
-            state.submitError?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.error,
-                )
+            AnimatedVisibility(
+                visible = state.submitError != null,
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) {
+                state.submitError?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
             }
 
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = state.isValid,
                 onClick = { viewModel.onEvent(PredictionUiEvent.Submit) },
+                shape = RoundedCornerShape(14.dp),
             ) {
                 Text(if (state.isSubmitting) "Analizando..." else "Analizar")
             }
