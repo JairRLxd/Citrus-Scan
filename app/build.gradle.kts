@@ -18,7 +18,7 @@ val localProperties = Properties().apply {
     }
 }
 
-val devApiBaseUrl = localProperties.getProperty("dev.apiBaseUrl") ?: "http://54.221.126.156/"
+val devApiBaseUrl = localProperties.getProperty("dev.apiBaseUrl") ?: "https://citrus-scan-api.onrender.com/"
 
 android {
     namespace = "com.example.citrusscan"
@@ -51,12 +51,12 @@ android {
             dimension = "env"
             applicationIdSuffix = ".staging"
             versionNameSuffix = "-staging"
-            buildConfigField("String", "API_BASE_URL", "\"https://staging.citrus-scan.example.com/\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://citrus-scan-api.onrender.com/\"")
             buildConfigField("boolean", "ENABLE_HTTP_LOGGING", "true")
         }
         create("prod") {
             dimension = "env"
-            buildConfigField("String", "API_BASE_URL", "\"https://api.citrus-scan.example.com/\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://citrus-scan-api.onrender.com/\"")
             buildConfigField("boolean", "ENABLE_HTTP_LOGGING", "false")
         }
     }

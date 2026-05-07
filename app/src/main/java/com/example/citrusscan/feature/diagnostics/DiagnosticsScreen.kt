@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,16 +20,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.citrusscan.domain.model.ClassifierName
+import com.example.citrusscan.ui.components.CitrusTopBar
+import com.example.citrusscan.ui.theme.CitrusNight
 import com.example.citrusscan.ui.theme.CitrusPeel
 import com.example.citrusscan.ui.theme.CitrusText
 
@@ -41,28 +40,42 @@ fun DiagnosticsScreen(
     viewModel: DiagnosticsViewModel = hiltViewModel(),
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
+    val healthBody = remember(state.health, state.healthError, state.isLoading) {
+        when {
+            state.health != null -> buildString {
+                appendLine(if (state.health.isUp) "Servidor disponible" else "Servidor reporta fallo")
+                appendLine("Version: ${state.health.version ?: "-"}")
+                append("Uptime: ${state.health.uptimeSeconds ?: "-"}")
+            }
+
+            state.healthError != null -> state.healthError
+            else -> if (state.isLoading) "Cargando..." else "Sin datos."
+        }
+    }
+    val preprocessingBody = remember(state.preprocessingStatus, state.preprocessingError, state.isLoading) {
+        when {
+            state.preprocessingStatus != null -> buildString {
+                appendLine("Ready: ${state.preprocessingStatus.ready}")
+                appendLine("Pipeline: ${state.preprocessingStatus.pipeline.joinToString()}")
+                append("Detalle: ${state.preprocessingStatus.detail ?: "-"}")
+            }
+
+            state.preprocessingError != null -> state.preprocessingError
+            else -> if (state.isLoading) "Cargando..." else "Sin datos."
+        }
+    }
 
     Scaffold(
-        containerColor = Color(0xFF101014),
+        containerColor = CitrusNight,
         topBar = {
-            TopAppBar(
-                title = { Text("Diagnosticos") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Volver")
-                    }
-                },
+            CitrusTopBar(
+                title = "Diagnosticos",
+                onBack = onBack,
                 actions = {
                     IconButton(onClick = viewModel::refresh) {
                         Icon(Icons.Rounded.Refresh, contentDescription = "Actualizar")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF101014),
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White,
-                    actionIconContentColor = Color.White,
-                ),
             )
         },
     ) { padding ->
@@ -91,36 +104,14 @@ fun DiagnosticsScreen(
             item {
                 DiagnosticsCard(
                     title = "Health",
-                    body = buildString {
-                        when {
-                            state.health != null -> {
-                                appendLine(if (state.health.isUp) "Servidor disponible" else "Servidor reporta fallo")
-                                appendLine("Version: ${state.health.version ?: "-"}")
-                                append("Uptime: ${state.health.uptimeSeconds ?: "-"}")
-                            }
-
-                            state.healthError != null -> append(state.healthError)
-                            else -> append(if (state.isLoading) "Cargando..." else "Sin datos.")
-                        }
-                    },
+                    body = healthBody,
                 )
             }
 
             item {
                 DiagnosticsCard(
                     title = "Preprocessing",
-                    body = buildString {
-                        when {
-                            state.preprocessingStatus != null -> {
-                                appendLine("Ready: ${state.preprocessingStatus.ready}")
-                                appendLine("Pipeline: ${state.preprocessingStatus.pipeline.joinToString()}")
-                                append("Detalle: ${state.preprocessingStatus.detail ?: "-"}")
-                            }
-
-                            state.preprocessingError != null -> append(state.preprocessingError)
-                            else -> append(if (state.isLoading) "Cargando..." else "Sin datos.")
-                        }
-                    },
+                    body = preprocessingBody,
                 )
             }
 
@@ -133,7 +124,10 @@ fun DiagnosticsScreen(
             }
 
             if (state.models.isNotEmpty()) {
-                items(state.models) { model ->
+                items(
+                    items = state.models,
+                    key = { it.classifier.name },
+                ) { model ->
                     DiagnosticsCard(
                         title = model.classifier.toDisplayName(),
                         body = buildString {

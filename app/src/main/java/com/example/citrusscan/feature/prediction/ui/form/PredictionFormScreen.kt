@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -15,24 +16,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
@@ -43,8 +39,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.example.citrusscan.feature.prediction.state.PredictionFormEffect
 import com.example.citrusscan.feature.prediction.state.PredictionUiEvent
+import com.example.citrusscan.ui.components.CitrusTopBar
+import com.example.citrusscan.ui.theme.CitrusNight
 import com.example.citrusscan.ui.theme.CitrusPeel
-import com.example.citrusscan.ui.theme.CitrusText
 import kotlinx.coroutines.flow.collect
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,21 +69,9 @@ fun PredictionFormScreen(
     }
 
     Scaffold(
-        containerColor = Color(0xFF101014),
+        containerColor = CitrusNight,
         topBar = {
-            TopAppBar(
-                title = { Text("Datos de analisis") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Volver")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF101014),
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White,
-                ),
-            )
+            CitrusTopBar(title = "Datos de analisis", onBack = onBack)
         },
     ) { padding ->
         val scrollState = rememberScrollState()
@@ -122,7 +107,9 @@ fun PredictionFormScreen(
                     contentDescription = "Imagen seleccionada",
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(240.dp)
                         .padding(12.dp),
+                    contentScale = ContentScale.Crop,
                 )
             }
 

@@ -10,19 +10,13 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -34,7 +28,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.citrusscan.feature.prediction.state.PredictionResultUiState
 import com.example.citrusscan.feature.prediction.ui.components.BestResultBanner
 import com.example.citrusscan.feature.prediction.ui.components.ClassifierResultCard
-import com.example.citrusscan.ui.theme.CitrusText
+import com.example.citrusscan.ui.components.CitrusTopBar
+import com.example.citrusscan.ui.theme.CitrusNight
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,21 +46,9 @@ fun PredictionResultScreen(
     }
 
     Scaffold(
-        containerColor = Color(0xFF101014),
+        containerColor = CitrusNight,
         topBar = {
-            TopAppBar(
-                title = { Text("Resultado") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Volver")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF101014),
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White,
-                ),
-            )
+            CitrusTopBar(title = "Resultado", onBack = onBack)
         },
     ) { padding ->
         Crossfade(
@@ -134,7 +117,10 @@ fun PredictionResultScreen(
                         item {
                             BestResultBanner(best = current.data.best)
                         }
-                        items(current.data.cards) { card ->
+                        items(
+                            items = current.data.cards,
+                            key = { it.classifier },
+                        ) { card ->
                             ClassifierResultCard(card = card, modifier = Modifier.fillMaxWidth())
                         }
                         item {
